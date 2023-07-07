@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Display a map on a webpage</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        h2,
+        h3 {
+            margin: 10px;
+            font-size: 18px;
+        }
+
+        h3 {
+            font-size: 16px;
+        }
+
+        p {
+            margin: 10px;
+        }
+
+        .map-overlay {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #fff;
+            margin-right: 20px;
+            font-family: Arial, sans-serif;
+            overflow: auto;
+            border-radius: 3px;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        #features {
+            top: 0;
+            height: 100px;
+            margin-top: 20px;
+            width: 250px;
+        }
+
+        #legend {
+            padding: 10px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            line-height: 18px;
+            height: 150px;
+            margin-bottom: 40px;
+            width: 100px;
+        }
+
+        .legend-key {
+            display: inline-block;
+            border-radius: 20%;
+            width: 10px;
+            height: 10px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <div class="map-overlay" id="features">
+        <h2>Seattle traffic density</h2>
+        <div id="pd">
+            <p>Avoid roads with high car traffic!</p>
+            <p>Green is low, red is high.</p>
+        </div>
+    </div>
+    
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoiY2hyaXN0b3BoZXIwNSIsImEiOiJjbGZoaGZ1ZDIwNG5oM3RwbXFxbWdzYjk4In0.D3LIPi5IKAdDtE4BCf28vA';
+        const map = new mapboxgl.Map({
+            container: 'map', // container ID
+            // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
+            style: 'mapbox://styles/christopher05/cljt3men601dg01nsety55384', // style URL
+            center: [-122.32, 47.59], // starting position [lng, lat]
+            zoom: 13 // starting zoom
+        });
+
+
+        map.on('load', () => {
+            // add a source and layer for seattle data
+            map.addSource('seattle-sample', {
+                type: 'geojson',
+                data: 'data/seattle-sample.geojson'
+            })
+
+
+            // cld maybe add more layers for road type, if shoulder etc? (would prop need more data sources)
+            map.addLayer({
+                id: 'seattle-sample-line',
+                type: 'line',
+                source: 'seattle-sample',
+                paint: {
+                    'line-color': [
+                        'interpolate',
+                        ['linear'],
+                        ['get', 'activity_index'],
+                        0.003736,
+                        'green',
+                        0.2,
+                        'orange',
+                        0.442237,
+                        'red',
+                        0.880737,
+                        'red'
+
+                    ]
+                }
+            })
+            //const layers = [
+                //'0-0.003736',
+                //'0.003736-0.2',
+                //'0.2-0.880737'
+                
+                //this isnt correct bc i use interpolate, so i need to find a legend which uses interpolate
+                //unsure whether you can do a legend w interpolation, i could do stops instead which you can do a legend for (photo at agora 7/7/23)
+            //];
+            //const colors = [
+                //'green',
+                //'orange',
+                //'red'
+                
+            //];
+        });
+          // i need line color, which will be closer to red if activity index is higher and closer to green if it is lower or something like that
+
+          //right above script (on line 84, just below end of div)i had: <div class="map-overlay" id="legend"></div> (it was for the legend)
+    </script>
+
+</body>
+
+</html>
